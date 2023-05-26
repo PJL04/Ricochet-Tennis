@@ -1,4 +1,5 @@
 import pygame, sys
+import random
 
 # General setup
 pygame.init()
@@ -22,10 +23,17 @@ opponent = pygame.Rect(10, screen_height/2 - 70, 10, 140)
 bg_color = pygame.Color("grey12")
 light_grey = (200, 200, 200)
 
-ball_speed_x = 8
-ball_speed_y = 8
+ball_speed_x = 8 * random.choice((1, -1))
+ball_speed_y = 8 * random.choice((1, -1))
 player_speed = 0
+opponent_speed = 8
 
+
+def ball_restart():
+    global ball_speed_x, ball_speed_y
+    ball.center = (screen_width/2, screen_height/2)
+    ball_speed_y *= random.choice((1, -1))
+    ball_speed_x *= random.choice((1, -1))
 
 def ball_movement():
     # need global variable because local variable "bal_speed_x referenced before assignment"
@@ -38,7 +46,7 @@ def ball_movement():
     if ball.top <= 0 or ball.bottom >= screen_height:
         ball_speed_y *= -1
     if ball.left <= 0 or ball.right >= screen_width:
-        ball_speed_x *= -1
+        ball_restart()
 
     # Ball bounces off the player rect
     if ball.colliderect(player) or  ball.colliderect(opponent):
@@ -50,6 +58,18 @@ def player_border():
     if player.bottom >= screen_height:
         player.bottom = screen_height
 
+def opponent_border():
+    if opponent.top <= 0:
+        opponent.top = 0
+    if opponent.bottom >= screen_height:
+        opponent.bottom = screen_height
+
+def opponent_movement():
+    # If opponent over ball move down; If oppoent is under ball move up
+    if opponent.top < ball.y:
+        opponent.top += opponent_speed 
+    if opponent.bottom > ball.y:
+        opponent.bottom -= opponent_speed
 
 # Game loop
 while True:
@@ -83,6 +103,9 @@ while True:
     ball_movement()
     player.y += player_speed
     player_border()
+    opponent_border()
+    opponent_movement()
+
 
     # Drawings
     screen.fill(bg_color)
