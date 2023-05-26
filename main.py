@@ -22,6 +22,9 @@ opponent = pygame.Rect(10, screen_height/2 - 70, 10, 140)
 bg_color = pygame.Color("grey12")
 light_grey = (200, 200, 200)
 
+ball_speed_x = 8
+ball_speed_y = 8
+
 
 # Game loop
 while True:
@@ -34,6 +37,16 @@ while True:
             pygame.quit()
             # close window
             sys.exit
+
+    # Ball gets speed
+    ball.x += ball_speed_x
+    ball.y += ball_speed_y
+
+    # Ball bounces off the edge of the screen
+    if ball.top <= 0 or ball.bottom >= screen_height:
+        ball_speed_y *= -1
+    if ball.left <= 0 or ball.right >= screen_width:
+        ball_speed_x *= -1
 
     # Drawings
     screen.fill(bg_color)
