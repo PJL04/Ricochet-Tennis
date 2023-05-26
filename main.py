@@ -24,6 +24,7 @@ light_grey = (200, 200, 200)
 
 ball_speed_x = 8
 ball_speed_y = 8
+player_speed = 0
 
 
 def ball_movement():
@@ -43,20 +44,45 @@ def ball_movement():
     if ball.colliderect(player) or  ball.colliderect(opponent):
         ball_speed_x *= -1
 
+def player_border():
+    if player.top <= 0:
+        player.top = 0
+    if player.bottom >= screen_height:
+        player.bottom = screen_height
+
 
 # Game loop
 while True:
     # Handling input
-    # get user input
+    # Get user input
     for event in pygame.event.get():
-        # if user clicks close
+
+        # If user clicks close
         if event.type == pygame.QUIT:
             # quitting game
             pygame.quit()
             # close window
             sys.exit
 
+        # Player movement
+        # Key pressed
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_DOWN:
+                player_speed += 7
+            if event.key == pygame.K_UP:
+                player_speed -= 7
+
+        # Key released
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_DOWN:
+                player_speed -= 7
+            if event.key == pygame.K_UP:
+                player_speed += 7
+
+
     ball_movement()
+    player.y += player_speed
+    player_border()
 
     # Drawings
     screen.fill(bg_color)
