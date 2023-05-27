@@ -28,22 +28,44 @@ ball_speed_y = 8 * random.choice((1, -1))
 player_speed = 0
 opponent_speed = 8
 
-# Text
+# Text (score)
 player_score = 0
 opponent_score = 0
 font = pygame.font.SysFont("impact", 32)
 
-
+# Timer
+score_time = True
 
 def ball_restart():
-    global ball_speed_x, ball_speed_y
+    global ball_speed_x, ball_speed_y, score_time
+
+    current_time = pygame.time.get_ticks()
+
     ball.center = (screen_width/2, screen_height/2)
-    ball_speed_y *= random.choice((1, -1))
-    ball_speed_x *= random.choice((1, -1))
+
+    # Display timer
+    if current_time - score_time < 500:
+        number_three = font.render("3", False, light_grey)
+        screen.blit(number_three, (screen_width/2 - 10, screen_height/2 + 20))
+    
+    if 500 < current_time - score_time < 1000:
+        number_two = font.render("2", False, light_grey)
+        screen.blit(number_two, (screen_width/2 - 10, screen_height/2 + 20))
+
+    if 1000 < current_time - score_time < 1500:
+        number_one = font.render("1", False, light_grey)
+        screen.blit(number_one, (screen_width/2 - 10, screen_height/2 + 20))
+
+    if current_time - score_time < 1500:
+        ball_speed_x, ball_speed_y = 0,0
+    else:
+        ball_speed_y = 8 * random.choice((1, -1))
+        ball_speed_x = 8 * random.choice((1, -1))
+        score_time = None
 
 def ball_movement():
     # need global variable because local variable "bal_speed_x referenced before assignment"
-    global ball_speed_x, ball_speed_y, player_score, opponent_score
+    global ball_speed_x, ball_speed_y, player_score, opponent_score, score_time
     # Ball gets speed
     ball.x += ball_speed_x
     ball.y += ball_speed_y
@@ -55,11 +77,12 @@ def ball_movement():
     if ball.left <= 0:
         # Player scored
         player_score += 1
-        ball_restart()
+        score_time = pygame.time.get_ticks()
+
     if ball.right >= screen_width:
         # Opponent scored
         opponent_score += 1
-        ball_restart()
+        score_time = pygame.time.get_ticks()
 
     # Ball bounces off the player rect
     if ball.colliderect(player) or  ball.colliderect(opponent):
@@ -83,6 +106,7 @@ def opponent_movement():
         opponent.top += opponent_speed 
     if opponent.bottom > ball.y:
         opponent.bottom -= opponent_speed
+
 
 # Game loop
 while True:
@@ -127,6 +151,8 @@ while True:
     pygame.draw.ellipse(screen, light_grey, ball)
     pygame.draw.aaline(screen, light_grey, (screen_width/2, 0), (screen_width/2,screen_height))
     
+    if score_time:
+        ball_restart()
 
     # Surface for player score
     player_text = font.render(f"{player_score}", False, light_grey)
