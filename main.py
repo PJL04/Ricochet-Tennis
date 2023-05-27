@@ -28,6 +28,12 @@ ball_speed_y = 8 * random.choice((1, -1))
 player_speed = 0
 opponent_speed = 8
 
+# Text
+player_score = 0
+opponent_score = 0
+font = pygame.font.SysFont("impact", 32)
+
+
 
 def ball_restart():
     global ball_speed_x, ball_speed_y
@@ -37,7 +43,7 @@ def ball_restart():
 
 def ball_movement():
     # need global variable because local variable "bal_speed_x referenced before assignment"
-    global ball_speed_x, ball_speed_y
+    global ball_speed_x, ball_speed_y, player_score, opponent_score
     # Ball gets speed
     ball.x += ball_speed_x
     ball.y += ball_speed_y
@@ -45,7 +51,14 @@ def ball_movement():
     # Ball bounces off the edge of the screen
     if ball.top <= 0 or ball.bottom >= screen_height:
         ball_speed_y *= -1
-    if ball.left <= 0 or ball.right >= screen_width:
+
+    if ball.left <= 0:
+        # Player scored
+        player_score += 1
+        ball_restart()
+    if ball.right >= screen_width:
+        # Opponent scored
+        opponent_score += 1
         ball_restart()
 
     # Ball bounces off the player rect
@@ -99,7 +112,7 @@ while True:
             if event.key == pygame.K_UP:
                 player_speed += 7
 
-
+    # Logic
     ball_movement()
     player.y += player_speed
     player_border()
@@ -114,6 +127,13 @@ while True:
     pygame.draw.ellipse(screen, light_grey, ball)
     pygame.draw.aaline(screen, light_grey, (screen_width/2, 0), (screen_width/2,screen_height))
     
+
+    # Surface for player score
+    player_text = font.render(f"{player_score}", False, light_grey)
+    screen.blit(player_text, (660, 470))
+    # Surface for opponent score
+    opponent_text = font.render(f"{opponent_score}", False, light_grey)
+    screen.blit(opponent_text, (600, 470))
 
 
     # Updating the window
