@@ -2,6 +2,8 @@ import pygame, sys
 import random
 
 # General setup
+# Change buffer of sound
+pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -22,6 +24,7 @@ opponent = pygame.Rect(10, screen_height/2 - 70, 10, 140)
 # Background color
 bg_color = pygame.Color("grey12")
 light_grey = (200, 200, 200)
+ball_color = (255, 255, 0)
 
 ball_speed_x = 8 * random.choice((1, -1))
 ball_speed_y = 8 * random.choice((1, -1))
@@ -35,6 +38,15 @@ font = pygame.font.SysFont("impact", 32)
 
 # Timer
 score_time = True
+
+# Sound
+hit_sound = pygame.mixer.Sound("hit_new.ogg")
+score_sound = pygame.mixer.Sound("score_new.ogg")
+wall_sound = pygame.mixer.Sound("wall_new.ogg")
+# Sound volume
+score_sound.set_volume(0.1)
+hit_sound.set_volume(0.2)
+wall_sound.set_volume(0.2)
 
 def ball_restart():
     global ball_speed_x, ball_speed_y, score_time
@@ -64,7 +76,7 @@ def ball_restart():
         score_time = None
 
 def ball_movement():
-    # need global variable because local variable "bal_speed_x referenced before assignment"
+    # Need global variable because local variable "bal_speed_x referenced before assignment"
     global ball_speed_x, ball_speed_y, player_score, opponent_score, score_time
     # Ball gets speed
     ball.x += ball_speed_x
@@ -72,6 +84,7 @@ def ball_movement():
 
     # Ball bounces off the edge of the screen
     if ball.top <= 0 or ball.bottom >= screen_height:
+        pygame.mixer.Sound.play(wall_sound)
         ball_speed_y *= -1
 
     if ball.left <= 0:
@@ -86,6 +99,7 @@ def ball_movement():
 
     # Ball bounces off the player rect
     if ball.colliderect(player) and ball_speed_x > 0:
+        pygame.mixer.Sound.play(hit_sound)
         if abs(ball.right - player.left) < 10:
             ball_speed_x *= -1
         elif abs(ball.bottom - player.top) < 10 and ball_speed_y > 0:
@@ -94,6 +108,7 @@ def ball_movement():
             ball_speed_y *= -1
 
     if ball.colliderect(opponent) and ball_speed_x < 0:
+        pygame.mixer.Sound.play(hit_sound)
         if abs(ball.left - opponent.right) < 10:
             ball_speed_x *= -1
         elif abs(ball.bottom - opponent.top) < 10 and ball_speed_y > 0:
@@ -162,10 +177,11 @@ while True:
     screen.fill(bg_color)
     pygame.draw.rect(screen, light_grey, player)
     pygame.draw.rect(screen, light_grey, opponent)
-    pygame.draw.ellipse(screen, light_grey, ball)
+    pygame.draw.ellipse(screen, ball_color, ball)
     pygame.draw.aaline(screen, light_grey, (screen_width/2, 0), (screen_width/2,screen_height))
     
     if score_time:
+        pygame.mixer.Sound.play(score_sound)
         ball_restart()
 
     # Surface for player score
